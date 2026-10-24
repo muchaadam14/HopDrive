@@ -10,6 +10,7 @@
         h1 { border-bottom: 2px solid #fcd034; padding-bottom: 10px; margin-bottom: 20px; color: #fcd034; }
         .order-card { background: #333; border-left: 5px solid #872ba1; padding: 15px; margin-bottom: 15px; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); position: relative; }
         .order-header { display: flex; justify-content: space-between; font-weight: bold; border-bottom: 1px solid #444; padding-bottom: 5px; margin-bottom: 10px; color: #fcd034; padding-right: 110px; }
+        .order-info { margin: 5px 0; font-size: 15px; }
         .products { background: #444; padding: 10px; border-radius: 4px; margin-top: 10px; white-space: pre-wrap; border: 1px solid #555; }
         .no-orders { text-align: center; color: #888; margin-top: 40px; font-style: italic; }
         .done-btn { position: absolute; top: 12px; right: 15px; background: #2e7d32; color: white; border: none; padding: 6px 14px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; }
@@ -18,74 +19,69 @@
 </head>
 <body>
     <div class="container">
-        <h1>Zamówienia</h1>
+        <h1>Wpadające Zamówienia (Na Żywo Online)</h1>
         <div id="ordersList">
-            <div class="no-orders">Brak nowych zamówień w tej chwili.</div>
+            <div class="no-orders" id="noOrdersMessage">Oczekiwanie na pierwsze zamówienia...</div>
         </div>
     </div>
 
     <script>
-        let wyswietloneIds = new Set();
+        const list = document.getElementById('ordersList');
+        
+        // Stabilny odbiór strumienia na żywo z serwera produkcyjnego
+        const eventSource = new EventSource('https://ntfy.sh');
 
-        function pobierzZamowienia() {
-            const list = document.getElementById('ordersList');
-            const orders = JSON.parse(localStorage.getItem('hopDriveOrders')) || [];
+        eventSource.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            if (!data.message || !data.message.includes('KLI~')) return;
 
-            if (orders.length === 0) {
-                list.innerHTML = '<div class="no-orders">Brak nowych zamówień w tej chwili.</div>';
-                wyswitetloneIds.clear();
-                return;
-            }
+            const noOrders = document.getElementById('noOrdersMessage');
+            if (noOrders) noOrders.remove();
 
-            // Czyszczenie komunikatu o braku zamówień
-            const noOrders = list.querySelector('.no-orders');
-            if (noOrders) {
-                list.innerHTML = '';
-            }
+            const cardId = `order-${data.id}`;
+            if (document.getElementById(cardId)) return;
 
-            // Wyświetlamy zamówienia od najnowszego odwracając tablicę
-            [...orders].reverse().forEach(order => {
-                if (!wyswietloneIds.has(order.id)) {
-                    wyswietloneIds.add(order.id);
-                    
-                    const card = document.createElement('div');
-                    card.className = 'order-card';
-                    card.id = `order-${order.id}`;
-                    card.innerHTML = `
-                        <div class="order-header">
-                            <span>👤 ${order.name} (Tel: ${order.phone})</span>
-                            <span>⏰ ${order.time}</span>
-                        </div>
-                        <div style="margin-top: 5px;"><strong>Sklep:</strong> ${order.shop}</div>
-                        <div class="products"><strong>Lista zakupów:</strong>\n${order.products}</div>
-                        <button class="done-btn" onclick="removeOrder('${order.id}')">Zrobione ✓</button>
-                    `;
-                    list.appendChild(card);
+            // Precyzyjne rozkodowanie rozdzielonych pól
+            const segments = data.message.split(';');
+            let name = "Nieznany", phone = "Brak", shop = "Nie wybrano", products = "";
 
-                    // Dźwięk powiadomienia
-                    try { new Audio('https://google.com').play(); } catch(e){}
-                }
+            segments.forEach(seg => {
+                if (seg.startsWith('KLI~')) name = decodeURIComponent(seg.replace('KLI~', ''));
+                if (seg.startsWith('TEL~')) phone = decodeURIComponent(seg.replace('TEL~', ''));
+                if (seg.startsWith('SKL~')) shop = decodeURIComponent(seg.replace('SKL~', ''));
+                if (seg.startsWith('PROD~')) products = decodeURIComponent(seg.replace('PROD~', ''));
             });
-        }
+
+            const timeString = new Date(data.time * 1000).toLocaleTimeString();
+
+            const card = document.createElement('div');
+            card.className = 'order-card';
+            card.id = cardId;
+            card.innerHTML = `
+                <div class="order-header">
+                    <span>👤 ${name}</span>
+                    <span>⏰ ${timeString}</span>
+                </div>
+                <div class="order-info"><strong>📞 Telefon:</strong> ${phone}</div>
+                <div class="order-info"><strong>🏪 Sklep docelowy:</strong> ${shop}</div>
+                <div class="products"><strong>🛒 Lista zakupów:</strong>\n${products}</div>
+                <button class="done-btn" onclick="removeOrder('${data.id}')">Zrobione ✓</button>
+            `;
+
+            list.insertBefore(card, list.firstChild);
+
+            // Sygnał dźwiękowy o nowym zamówieniu
+            try { new Audio('https://google.com').play(); } catch(e){}
+        };
 
         function removeOrder(orderId) {
             const el = document.getElementById(`order-${orderId}`);
             if (el) el.remove();
-            wyswietloneIds.delete(parseInt(orderId));
 
-            let orders = JSON.parse(localStorage.getItem('hopDriveOrders')) || [];
-            orders = orders.filter(o => o.id !== parseInt(orderId));
-            localStorage.setItem('hopDriveOrders', JSON.stringify(orders));
-
-            const list = document.getElementById('ordersList');
             if (list.children.length === 0) {
-                list.innerHTML = '<div class="no-orders">Brak nowych zamówień w tej chwili.</div>';
+                list.innerHTML = '<div class="no-orders" id="noOrdersMessage">Oczekiwanie na pierwsze zamówienia...</div>';
             }
         }
-
-        // Błyskawiczne sprawdzanie lokalne co sekundę
-        pobierzZamowienia();
-        setInterval(pobierzZamowienia, 1000);
     </script>
 </body>
 </html>

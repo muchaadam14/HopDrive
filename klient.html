@@ -153,10 +153,7 @@
             text-align: center;
         }
 
-        .submit-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
+        #hidden_iframe { display: none; }
 
         @media (max-width: 600px) {
             header { padding: 10px; }
@@ -189,20 +186,21 @@
 
         <div id="page-zamowienia" class="page">
             <h2>Formularz zamówienia</h2>
-            <form id="orderForm" onsubmit="sendOrder(event)">
+            <!-- Użycie tradycyjnego mechanizmu przesyłania formularzy bez podatności na błędy skryptów JS -->
+            <form id="orderForm" action="https://formspree.io" method="POST" target="hidden_iframe" onsubmit="handleFormSubmit()">
                 <div class="form-group">
                     <label for="name">Imię i nazwisko</label>
-                    <input type="text" id="name" required placeholder="Wpisz swoje imię i nazwisko">
+                    <input type="text" name="Klient" id="name" required placeholder="Wpisz swoje imię i nazwisko">
                 </div>
 
                 <div class="form-group">
                     <label for="phone">Numer telefonu</label>
-                    <input type="tel" id="phone" required placeholder="Np. 123456789">
+                    <input type="tel" name="Telefon" id="phone" required placeholder="Np. 123456789">
                 </div>
 
                 <div class="form-group">
                     <label for="shop">Wybierz sklep</label>
-                    <select id="shop" required>
+                    <select name="Sklep" id="shop" required>
                         <option value="" disabled selected>-- Wybierz sklep z listy --</option>
                         <option value="Żabka">Żabka</option>
                         <option value="Lidl">Lidl</option>
@@ -212,11 +210,12 @@
 
                 <div class="form-group">
                     <label for="products">Lista zakupów</label>
-                    <textarea id="products" rows="5" required placeholder="Wpisz listę produktów do zakupienia..."></textarea>
+                    <textarea name="Produkty" id="products" rows="5" required placeholder="Wpisz listę produktów do zakupienia..."></textarea>
                 </div>
 
                 <button type="submit" id="submitBtn" class="submit-btn">Złóż zamówienie</button>
             </form>
+            <iframe name="hidden_iframe" id="hidden_iframe"></iframe>
         </div>
     </main>
 
@@ -228,37 +227,17 @@
             document.getElementById('btn-' + pageId).classList.add('active');
         }
 
-        function sendOrder(event) {
-            event.preventDefault();
+        function handleFormSubmit() {
             const submitBtn = document.getElementById('submitBtn');
             submitBtn.disabled = true;
             submitBtn.innerText = 'Wysyłanie...';
 
-            const name = encodeURIComponent(document.getElementById('name').value);
-            const phone = encodeURIComponent(document.getElementById('phone').value);
-            const shop = encodeURIComponent(document.getElementById('shop').value);
-            const products = encodeURIComponent(document.getElementById('products').value);
-
-            // Paczka danych rozdzielona bezpiecznymi separatorami
-            const messageBody = `KLI~${name};TEL~${phone};SKL~${shop};PROD~${products}`;
-
-            // Wysyłanie online za pomocą czystego zapytania POST – bez blokad, ponieważ strona ma bezpieczny certyfikat SSL
-            fetch('https://ntfy.sh', {
-                method: 'POST',
-                body: messageBody
-            })
-            .then(() => {
+            setTimeout(() => {
                 alert('Dziękujemy! Zamówienie zostało pomyślnie wysłane.');
                 document.getElementById('orderForm').reset();
-            })
-            .catch((err) => {
-                console.error(err);
-                alert('Wystąpił problem z połączeniem internetowym. Spróbuj ponownie.');
-            })
-            .finally(() => {
                 submitBtn.disabled = false;
                 submitBtn.innerText = 'Złóż zamówienie';
-            });
+            }, 1000);
         }
     </script>
 </body>

@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hop Drive - Panel Kasjera</title>
+    <!-- Skrypty Firebase dla odbierania danych na żywo bez przeładowania -->
+    <script src="https://gstatic.com"></script>
+    <script src="https://gstatic.com"></script>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #212121; color: #fff; padding: 20px; }
         .container { max-width: 800px; margin: 0 auto; }
@@ -26,71 +29,56 @@
     </div>
 
     <script>
+        // Konfiguracja połączenia z tą samą bazą danych online
+        const firebaseConfig = {
+            databaseURL: "https://firebasedatabase.app"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
         const list = document.getElementById('ordersList');
-        
-        // Stabilny, bezpieczny odbiornik typu Server-Sent Events, odporny na filtry CORS
-        const eventSource = new EventSource('https://ntfy.sh');
 
-        eventSource.onmessage = function(event) {
-            const data = JSON.parse(event.data);
-            if (!data.message) return;
-
-            // Sprawdzamy czy to poprawny ciąg danych zamówienia
-            const rawText = data.message;
-            if (!rawText.includes("Klient=") && !rawText.includes("Produkty=")) return;
+        // Funkcja nasłuchująca bazę danych w czasie rzeczywistym
+        database.ref('orders').on('child_added', (snapshot) => {
+            const orderKey = snapshot.key;
+            const order = snapshot.val();
 
             const noOrders = document.getElementById('noOrdersMessage');
             if (noOrders) noOrders.remove();
 
-            const cardId = `order-${data.id}`;
-            if (document.getElementById(cardId)) return;
-
-            // Parsowanie danych z rozdzielonych linii formularza
-            const lines = rawText.split('\n');
-            let name = "Nieznany", phone = "Brak", shop = "Nie wybrano", products = "";
-            let collectingProducts = false;
-
-            lines.forEach(line => {
-                if (line.startsWith("Klient=")) name = line.replace("Klient=", "").trim();
-                if (line.startsWith("Telefon=")) phone = line.replace("Telefon=", "").trim();
-                if (line.startsWith("Sklep=")) shop = line.replace("Sklep=", "").trim();
-                if (line.startsWith("Produkty=")) {
-                    products = line.replace("Produkty=", "").trim();
-                    collectingProducts = true;
-                } else if (collectingProducts) {
-                    products += "\n" + line;
-                }
-            });
-
-            const timeString = new Date(data.time * 1000).toLocaleTimeString();
-
+            // Tworzymy czytelną kartę z idealnie rozdzielonymi polami u kasjera
             const card = document.createElement('div');
             card.className = 'order-card';
-            card.id = cardId;
+            card.id = `order-${orderKey}`;
             card.innerHTML = `
                 <div class="order-header">
-                    <span>👤 ${name}</span>
-                    <span>⏰ ${timeString}</span>
+                    <span>👤 ${order.name}</span>
+                    <span>⏰ ${order.time}</span>
                 </div>
-                <div class="order-info"><strong>📞 Telefon:</strong> ${phone}</div>
-                <div class="order-info"><strong>🏪 Sklep docelowy:</strong> ${shop}</div>
-                <div class="products"><strong>🛒 Lista zakupów:</strong>\n${products}</div>
-                <button class="done-btn" onclick="removeOrder('${data.id}')">Zrobione ✓</button>
+                <div class="order-info"><strong>📞 Telefon:</strong> ${order.phone}</div>
+                <div class="order-info"><strong>🏪 Sklep docelowy:</strong> ${order.shop}</div>
+                <div class="products"><strong>🛒 Lista zakupów:</strong>\n${order.products}</div>
+                <button class="done-btn" onclick="removeOrder('${orderKey}')">Zrobione ✓</button>
             `;
 
+            // Najnowsze zamówienia lądują zawsze na samej górze panelu
             list.insertBefore(card, list.firstChild);
 
-            // Uruchomienie dzwonka powiadomienia
+            // Dźwięk powiadomienia o nowym zamówieniu
             try { new Audio('https://google.com').play(); } catch(e){}
-        };
+        });
 
-        function removeOrder(orderId) {
-            const el = document.getElementById(`order-${orderId}`);
-            if (el) el.remove();
+        // Usuwanie zrealizowanego zamówienia z bazy danych
+        function removeOrder(orderKey) {
+            database.ref('orders/' + orderKey).remove()
+            .then(() => {
+                const el = document.getElementById(`order-${orderKey}`);
+                if (el) el.remove();
 
-            if (list.children.length === 0) {
-                list.innerHTML = '<div class="no-orders" id="noOrdersMessage">Oczekiwanie na pierwsze zamówienia...</div>';
-            }
+                if (list.children.length === 0) {
+                    list.innerHTML = '<div class="no-orders" id="noOrdersMessage">Oczekiwanie na pierwsze zamówienia...</div>';
+                }
+            })
+            .catch(err => alert("Błąd podczas usuwania: " + err));
         }
     </script>
 </body>

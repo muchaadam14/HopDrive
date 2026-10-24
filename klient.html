@@ -147,8 +147,10 @@
 
     <!-- NAGŁÓWEK Z GRADIENTEM -->
     <header class="header">
+        <div>
             <h1>Hop</h1>
             <p>Drive</p>
+        </div>
         <nav class="btn">
             <button id="btn-home" class="active" onclick="showSection('home')">Home</button>
             <button id="btn-orders" onclick="showSection('orders')">Zamówienia</button>
@@ -222,20 +224,33 @@
             }
         }
 
-        // Dodajemy nowy kod do obsługi formularza
         document.getElementById('orderForm').addEventListener('submit', function(event) {
             event.preventDefault();
+            
             const imie = document.getElementById('imie').value;
             const nazwisko = document.getElementById('nazwisko').value;
             const telefon = document.getElementById('telefon').value;
             const sklep = document.getElementById('sklep').value;
             const produkty = document.getElementById('produkty').value;
-            const email = 'mucha.adam14@gmail.com'; // Zmień ten adres na swój
+            
+            const email = 'mucha.adam14@gmail.com'; 
             const subject = 'Zamówienie z Hop Drive';
-            const body = `Imię: ${imie}\nNazwisko: ${nazwisko}\nNumer telefonu: ${telefon}\nSklep: ${sklep}\nProdukty: ${produkty}`;
-            const mailtoLink = `mailto:${email}?subject=${subject}&body=${body}`;
+            
+            // Surowa treść wiadomości ze znakami \n
+            const rawBody = `Imię: ${imie}\nNazwisko: ${nazwisko}\nNumer telefonu: ${telefon}\nSklep: ${sklep}\nProdukty: ${produkty}`;
+            
+            // Bezpieczne kodowanie tematu i treści do formatu URL
+            const encodedSubject = encodeURIComponent(subject);
+            const encodedBody = encodeURIComponent(rawBody);
+            
+            // Budowanie poprawnego linku mailto
+            const mailtoLink = `mailto:${email}?subject=${encodedSubject}&body=${encodedBody}`;
+            
+            // Uruchomienie klienta poczty
             window.location.href = mailtoLink;
         });
+
+
 
         // Inicjalizacja: Upewnienie się, że przy starcie jest widoczna sekcja Home
         document.addEventListener('DOMContentLoaded', () => {

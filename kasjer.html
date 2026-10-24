@@ -28,12 +28,16 @@
     <script>
         const list = document.getElementById('ordersList');
         
-        // Stabilny odbiór strumienia na żywo z serwera produkcyjnego
+        // Stabilny, bezpieczny odbiornik typu Server-Sent Events, odporny na filtry CORS
         const eventSource = new EventSource('https://ntfy.sh');
 
         eventSource.onmessage = function(event) {
             const data = JSON.parse(event.data);
-            if (!data.message || !data.message.includes('KLI~')) return;
+            if (!data.message) return;
+
+            // Sprawdzamy czy to poprawny ciąg danych zamówienia
+            const rawText = data.message;
+            if (!rawText.includes("Klient=") && !rawText.includes("Produkty=")) return;
 
             const noOrders = document.getElementById('noOrdersMessage');
             if (noOrders) noOrders.remove();
@@ -41,15 +45,21 @@
             const cardId = `order-${data.id}`;
             if (document.getElementById(cardId)) return;
 
-            // Precyzyjne rozkodowanie rozdzielonych pól
-            const segments = data.message.split(';');
+            // Parsowanie danych z rozdzielonych linii formularza
+            const lines = rawText.split('\n');
             let name = "Nieznany", phone = "Brak", shop = "Nie wybrano", products = "";
+            let collectingProducts = false;
 
-            segments.forEach(seg => {
-                if (seg.startsWith('KLI~')) name = decodeURIComponent(seg.replace('KLI~', ''));
-                if (seg.startsWith('TEL~')) phone = decodeURIComponent(seg.replace('TEL~', ''));
-                if (seg.startsWith('SKL~')) shop = decodeURIComponent(seg.replace('SKL~', ''));
-                if (seg.startsWith('PROD~')) products = decodeURIComponent(seg.replace('PROD~', ''));
+            lines.forEach(line => {
+                if (line.startsWith("Klient=")) name = line.replace("Klient=", "").trim();
+                if (line.startsWith("Telefon=")) phone = line.replace("Telefon=", "").trim();
+                if (line.startsWith("Sklep=")) shop = line.replace("Sklep=", "").trim();
+                if (line.startsWith("Produkty=")) {
+                    products = line.replace("Produkty=", "").trim();
+                    collectingProducts = true;
+                } else if (collectingProducts) {
+                    products += "\n" + line;
+                }
             });
 
             const timeString = new Date(data.time * 1000).toLocaleTimeString();
@@ -70,7 +80,7 @@
 
             list.insertBefore(card, list.firstChild);
 
-            // Sygnał dźwiękowy o nowym zamówieniu
+            // Uruchomienie dzwonka powiadomienia
             try { new Audio('https://google.com').play(); } catch(e){}
         };
 

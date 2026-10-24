@@ -153,6 +153,11 @@
             text-align: center;
         }
 
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
         @media (max-width: 600px) {
             header { padding: 10px; }
             .nav-container { flex-direction: column; gap: 10px; }
@@ -207,7 +212,7 @@
 
                 <div class="form-group">
                     <label for="products">Lista zakupów</label>
-                    <textarea id="products" rows="5" required placeholder="Wpisz listę produktów..."></textarea>
+                    <textarea id="products" rows="5" required placeholder="Wpisz listę produktów do zakupienia..."></textarea>
                 </div>
 
                 <button type="submit" id="submitBtn" class="submit-btn">Złóż zamówienie</button>
@@ -225,25 +230,35 @@
 
         function sendOrder(event) {
             event.preventDefault();
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerText = 'Wysyłanie...';
 
-            const newOrder = {
-                id: Date.now(),
-                time: new Date().toLocaleTimeString(),
-                name: document.getElementById('name').value,
-                phone: document.getElementById('phone').value,
-                shop: document.getElementById('shop').value,
-                products: document.getElementById('products').value
-            };
+            const name = encodeURIComponent(document.getElementById('name').value);
+            const phone = encodeURIComponent(document.getElementById('phone').value);
+            const shop = encodeURIComponent(document.getElementById('shop').value);
+            const products = encodeURIComponent(document.getElementById('products').value);
 
-            // Pobieramy dane z pamięci lokalnej przeglądarki
-            let ordersList = JSON.parse(localStorage.getItem('hopDriveOrders')) || [];
-            ordersList.push(newOrder);
-            
-            // Zapisujemy z powrotem (całkowicie odporne na błędy sieciowe)
-            localStorage.setItem('hopDriveOrders', JSON.stringify(ordersList));
+            // Paczka danych rozdzielona bezpiecznymi separatorami
+            const messageBody = `KLI~${name};TEL~${phone};SKL~${shop};PROD~${products}`;
 
-            alert('Dziękujemy! Zamówienie zostało pomyślnie wysłane.');
-            document.getElementById('orderForm').reset();
+            // Wysyłanie online za pomocą czystego zapytania POST – bez blokad, ponieważ strona ma bezpieczny certyfikat SSL
+            fetch('https://ntfy.sh', {
+                method: 'POST',
+                body: messageBody
+            })
+            .then(() => {
+                alert('Dziękujemy! Zamówienie zostało pomyślnie wysłane.');
+                document.getElementById('orderForm').reset();
+            })
+            .catch((err) => {
+                console.error(err);
+                alert('Wystąpił problem z połączeniem internetowym. Spróbuj ponownie.');
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerText = 'Złóż zamówienie';
+            });
         }
     </script>
 </body>

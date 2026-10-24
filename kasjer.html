@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hop Drive - Panel Kasjera</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #212121; color: #fff; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        h1 { border-bottom: 2px solid #fcd034; padding-bottom: 10px; margin-bottom: 20px; color: #fcd034; }
+        .order-card { background: #333; border-left: 5px solid #872ba1; padding: 15px; margin-bottom: 15px; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); position: relative; }
+        .order-header { display: flex; justify-content: space-between; font-weight: bold; border-bottom: 1px solid #444; padding-bottom: 5px; margin-bottom: 10px; color: #fcd034; padding-right: 110px; }
+        .products { background: #444; padding: 10px; border-radius: 4px; margin-top: 10px; white-space: pre-wrap; border: 1px solid #555; }
+        .no-orders { text-align: center; color: #888; margin-top: 40px; font-style: italic; }
+        .done-btn { position: absolute; top: 12px; right: 15px; background: #2e7d32; color: white; border: none; padding: 6px 14px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; }
+        .done-btn:hover { background: #1b5e20; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Zamówienia</h1>
+        <div id="ordersList">
+            <div class="no-orders">Brak nowych zamówień w tej chwili.</div>
+        </div>
+    </div>
+
+    <script>
+        let wyswietloneIds = new Set();
+
+        function pobierzZamowienia() {
+            const list = document.getElementById('ordersList');
+            const orders = JSON.parse(localStorage.getItem('hopDriveOrders')) || [];
+
+            if (orders.length === 0) {
+                list.innerHTML = '<div class="no-orders">Brak nowych zamówień w tej chwili.</div>';
+                wyswitetloneIds.clear();
+                return;
+            }
+
+            // Czyszczenie komunikatu o braku zamówień
+            const noOrders = list.querySelector('.no-orders');
+            if (noOrders) {
+                list.innerHTML = '';
+            }
+
+            // Wyświetlamy zamówienia od najnowszego odwracając tablicę
+            [...orders].reverse().forEach(order => {
+                if (!wyswietloneIds.has(order.id)) {
+                    wyswietloneIds.add(order.id);
+                    
+                    const card = document.createElement('div');
+                    card.className = 'order-card';
+                    card.id = `order-${order.id}`;
+                    card.innerHTML = `
+                        <div class="order-header">
+                            <span>👤 ${order.name} (Tel: ${order.phone})</span>
+                            <span>⏰ ${order.time}</span>
+                        </div>
+                        <div style="margin-top: 5px;"><strong>Sklep:</strong> ${order.shop}</div>
+                        <div class="products"><strong>Lista zakupów:</strong>\n${order.products}</div>
+                        <button class="done-btn" onclick="removeOrder('${order.id}')">Zrobione ✓</button>
+                    `;
+                    list.appendChild(card);
+
+                    // Dźwięk powiadomienia
+                    try { new Audio('https://google.com').play(); } catch(e){}
+                }
+            });
+        }
+
+        function removeOrder(orderId) {
+            const el = document.getElementById(`order-${orderId}`);
+            if (el) el.remove();
+            wyswietloneIds.delete(parseInt(orderId));
+
+            let orders = JSON.parse(localStorage.getItem('hopDriveOrders')) || [];
+            orders = orders.filter(o => o.id !== parseInt(orderId));
+            localStorage.setItem('hopDriveOrders', JSON.stringify(orders));
+
+            const list = document.getElementById('ordersList');
+            if (list.children.length === 0) {
+                list.innerHTML = '<div class="no-orders">Brak nowych zamówień w tej chwili.</div>';
+            }
+        }
+
+        // Błyskawiczne sprawdzanie lokalne co sekundę
+        pobierzZamowienia();
+        setInterval(pobierzZamowienia, 1000);
+    </script>
+</body>
+</html>

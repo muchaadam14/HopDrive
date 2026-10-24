@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hop Drive</title>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #fcd034, #872ba1);
+            --dark-color: #212121;
+            --light-color: #f5f5f5;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: var(--primary-gradient);
+            padding: 15px 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+        }
+
+        nav button {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid #fff;
+            color: #fff;
+            padding: 8px 16px;
+            margin-left: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        nav button:hover, nav button.active {
+            background: #fff;
+            color: #872ba1;
+        }
+
+        main {
+            flex: 1;
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .page {
+            display: none;
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .home-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .home-image {
+            width: 100%;
+            max-width: 500px;
+            height: auto;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            display: block;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #872ba1;
+            border-bottom: 3px solid #fcd034;
+            padding-bottom: 8px;
+            display: inline-block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        input[type="text"], input[type="tel"], select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #872ba1;
+        }
+
+        .submit-btn {
+            display: block;
+            width: 100%;
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 14px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            header { padding: 10px; }
+            .nav-container { flex-direction: column; gap: 10px; }
+            .logo { font-size: 20px; }
+            nav button { padding: 6px 12px; font-size: 14px; }
+            main { padding: 10px; }
+            .page { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="nav-container">
+            <div class="logo">Hop Drive</div>
+            <nav>
+                <button id="btn-home" class="active" onclick="switchPage('home')">Home</button>
+                <button id="btn-zamowienia" onclick="switchPage('zamowienia')">Zamówienia</button>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div id="page-home" class="page active" style="background: transparent; padding: 0; box-shadow: none;">
+            <div class="home-container">
+                <img class="home-image" src="baner.gif" alt="Hop Drive Banner">
+            </div>
+        </div>
+
+        <div id="page-zamowienia" class="page">
+            <h2>Formularz zamówienia</h2>
+            <form id="orderForm" onsubmit="sendOrder(event)">
+                <div class="form-group">
+                    <label for="name">Imię i nazwisko</label>
+                    <input type="text" id="name" required placeholder="Wpisz swoje imię i nazwisko">
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Numer telefonu</label>
+                    <input type="tel" id="phone" required placeholder="Np. 123456789">
+                </div>
+
+                <div class="form-group">
+                    <label for="shop">Wybierz sklep</label>
+                    <select id="shop" required>
+                        <option value="" disabled selected>-- Wybierz sklep z listy --</option>
+                        <option value="Żabka">Żabka</option>
+                        <option value="Lidl">Lidl</option>
+                        <option value="Biedronka">Biedronka</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="products">Lista zakupów</label>
+                    <textarea id="products" rows="5" required placeholder="Wpisz listę produktów..."></textarea>
+                </div>
+
+                <button type="submit" id="submitBtn" class="submit-btn">Złóż zamówienie</button>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        function switchPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('page-' + pageId).classList.add('active');
+            document.getElementById('btn-' + pageId).classList.add('active');
+        }
+
+        function sendOrder(event) {
+            event.preventDefault();
+
+            const newOrder = {
+                id: Date.now(),
+                time: new Date().toLocaleTimeString(),
+                name: document.getElementById('name').value,
+                phone: document.getElementById('phone').value,
+                shop: document.getElementById('shop').value,
+                products: document.getElementById('products').value
+            };
+
+            // Pobieramy dane z pamięci lokalnej przeglądarki
+            let ordersList = JSON.parse(localStorage.getItem('hopDriveOrders')) || [];
+            ordersList.push(newOrder);
+            
+            // Zapisujemy z powrotem (całkowicie odporne na błędy sieciowe)
+            localStorage.setItem('hopDriveOrders', JSON.stringify(ordersList));
+
+            alert('Dziękujemy! Zamówienie zostało pomyślnie wysłane.');
+            document.getElementById('orderForm').reset();
+        }
+    </script>
+</body>
+</html>

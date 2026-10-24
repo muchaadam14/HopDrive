@@ -4,273 +4,243 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hop Drive</title>
-    <!-- Oficjalne i bezpieczne skrypty bazy danych działające online -->
-    <script src="https://gstatic.com"></script>
-    <script src="https://gstatic.com"></script>
     <style>
-        :root {
-            --primary-gradient: linear-gradient(135deg, #fcd034, #872ba1);
-            --dark-color: #212121;
-            --light-color: #f5f5f5;
-        }
-
-        * {
-            box-sizing: border-box;
+        /* 1. Kolorystyka: Żółto-Fioletowy Gradient na górze */
+        body {
+            font-family: sans-serif;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background-color: var(--light-color);
-            color: var(--dark-color);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        header {
-            background: var(--primary-gradient);
-            padding: 15px 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .nav-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-            color: #fff;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
-        }
-
-        nav button {
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid #fff;
-            color: #fff;
-            padding: 8px 16px;
-            margin-left: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            border-radius: 20px;
-            transition: all 0.3s ease;
-        }
-
-        nav button:hover, nav button.active {
-            background: #fff;
-            color: #872ba1;
-        }
-
-        main {
-            flex: 1;
-            max-width: 800px;
-            width: 100%;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .page {
-            display: none;
-            background: #fff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        }
-
-        .page.active {
-            display: block;
-        }
-
-        .home-container {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .home-image {
-            width: 100%;
-            max-width: 500px;
-            height: auto;
-            border-radius: 12px;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-            display: block;
-        }
-
-        h2 {
-            margin-bottom: 20px;
-            color: #872ba1;
-            border-bottom: 3px solid #fcd034;
-            padding-bottom: 8px;
-            display: inline-block;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #555;
-        }
-
-        input[type="text"], input[type="tel"], select, textarea {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: #872ba1;
-        }
-
-        .submit-btn {
-            display: block;
-            width: 100%;
-            background: var(--primary-gradient);
-            color: white;
-            border: none;
-            padding: 14px;
-            font-size: 18px;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: all 0.2s ease;
+            /* Gradient na górnej części strony */
+            background: white; 
+            color: #333;
             text-align: center;
         }
 
-        .submit-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
+        /* Nagłówek (Header) - Zostaje jako element gradientowy */
+        .header {
+            background: linear-gradient(135deg, #ffeb3b, #9c27b0);
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            display: flex; /* Uruchamia układ elastyczny */
+            justify-content: space-between; /* Rozkłada elementy, umieszczając pierwszy na skrajnie lewo, a ostatni na skrajnie prawo */
+            align-items: center; /* Opcjonalnie: Wyśrodkowuje elementy pionowo względem siebie */
+            border-radius: 0 0 20px 20px;
         }
 
-        @media (max-width: 600px) {
-            header { padding: 10px; }
-            .nav-container { flex-direction: column; gap: 10px; }
-            .logo { font-size: 20px; }
-            nav button { padding: 6px 12px; font-size: 14px; }
-            main { padding: 10px; }
-            .page { padding: 20px; }
+        .header h1 {
+            margin: 5px 0;
+            font-size: 2.8em;
+            color: #333;
+        }
+        .header p {
+            margin: 0;
+            font-size: 1.4em;
+            color: #444;
+        }
+
+        .hd {
+            margin-left: 30px;
+        }
+
+        .btn button {
+            background: none;
+            border: 2px solid black;
+            padding: 15px 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: background-color 0.3s, color 0.3s;
+            color: #555;
+            border-radius: 12px;;
+            width: 150px;
+            margin: 7px 0 0 10px;
+        }
+
+        #home-section h2 {
+            margin-top: 30px;
+        }
+
+        .banner-container img {
+            max-width: 100%; 
+            height: auto;
+            display: block;
+            margin: 30px auto;
+            border-radius: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        /* Sekcja Zamówienia (Formularz) */
+        #orders-section form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="tel"],
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #AA42A0;
+            border-radius: 20px;
+            box-sizing: border-box;
+        }
+
+        .et {
+            margin-top: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .form-group textarea {
+            min-height: 100px;
+        }
+
+        button[type="submit"] {
+            background: linear-gradient(135deg, #ffeb3b, #9c27b0);
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+        }
+
+        button[type="submit"]:active {
+            transform: scale(0.98);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) inset;
+        }
+
+        /* Responsywność */
+        @media (max-width: 768px) {
+            .header {
+                padding: 20px 15px;
+            }
+            .header h1 {
+                font-size: 2.2em;
+            }
+            .nav-tabs {
+                padding: 5px;
+            }
+            .nav-tabs button {
+                flex-grow: 1;
+                padding: 12px 5px;
+            }
+            .content-section {
+                padding: 20px;
+                margin: 15px;
+            }
         }
     </style>
 </head>
-<body>
+<body id="body-gradient">
 
-    <header>
-        <div class="nav-container">
-            <div class="logo">Hop Drive</div>
-            <nav>
-                <button id="btn-home" class="active" onclick="switchPage('home')">Home</button>
-                <button id="btn-zamowienia" onclick="switchPage('zamowienia')">Zamówienia</button>
-            </nav>
-        </div>
+    <!-- NAGŁÓWEK Z GRADIENTEM -->
+    <header class="header">
+            <h1>Hop</h1>
+            <p>Drive</p>
+        <nav class="btn">
+            <button id="btn-home" class="active" onclick="showSection('home')">Home</button>
+            <button id="btn-orders" onclick="showSection('orders')">Zamówienia</button>
+        </nav>
     </header>
 
-    <main>
-        <div id="page-home" class="page active" style="background: transparent; padding: 0; box-shadow: none;">
-            <div class="home-container">
-                <img class="home-image" src="baner.gif" alt="Hop Drive Banner">
+    <!-- STRONA GŁÓWNA (HOME) -->
+    <section id="home-section" class="content-section" style="display: block;">
+        <!-- Baner z pliku baner.gif -->
+        <div class="banner-container">
+            <img src="baner.gif" alt="Główny baner Hop Drive">
+        </div>
+    </section>
+
+    <!-- SEKCJA ZAMÓWIEŃ -->
+    <section id="orders-section" class="content-section">
+        <h2>Składanie Zamówienia</h2>
+        <form id="orderForm">
+            <div class="form-group">
+                <label for="imie" class="et">Imię:</label>
+                <input type="text" id="imie" name="imie" required>
+            </div >
+            <div class="form-group">
+                <label for="nazwisko" class="et">Nazwisko:</label>
+                <input type="text" id="nazwisko" name="nazwisko" required>
             </div>
-        </div>
-
-        <div id="page-zamowienia" class="page">
-            <h2>Formularz zamówienia</h2>
-            <form id="orderForm" onsubmit="sendOrder(event)">
-                <div class="form-group">
-                    <label for="name">Imię i nazwisko</label>
-                    <input type="text" id="name" required placeholder="Wpisz swoje imię i nazwisko">
-                </div>
-
-                <div class="form-group">
-                    <label for="phone">Numer telefonu</label>
-                    <input type="tel" id="phone" required placeholder="Np. 123456789">
-                </div>
-
-                <div class="form-group">
-                    <label for="shop">Wybierz sklep</label>
-                    <select id="shop" required>
-                        <option value="" disabled selected>-- Wybierz sklep z listy --</option>
-                        <option value="Żabka">Żabka</option>
-                        <option value="Lidl">Lidl</option>
-                        <option value="Biedronka">Biedronka</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="products">Lista zakupów</label>
-                    <textarea id="products" rows="5" required placeholder="Wpisz listę produktów do zakupienia..."></textarea>
-                </div>
-
-                <button type="submit" id="submitBtn" class="submit-btn">Złóż zamówienie</button>
-            </form>
-        </div>
-    </main>
+            <div class="form-group">
+                <label for="telefon" class="et">Numer telefonu:</label>
+                <input type="tel" id="telefon" name="telefon" pattern="[0-9]{9,15}" title="Wpisz poprawny numer telefonu" required>
+            </div>
+            <div class="form-group">
+                <label for="sklep" class="et">Wybierz sklep:</label>
+                <select id="sklep" name="sklep" required>
+                    <option value="">-- Wybierz sklep --</option>
+                    <option value="Żabka">Żabka</option>
+                    <option value="Lidl">Lidl</option>
+                    <option value="Biedronka">Biedronka</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="produkty" class="et">Produkty (opisz, co chcesz zamówić):</label>
+                <textarea id="produkty" name="produkty" required placeholder="Np. 2 butelki wody, chleb i kanapki..."></textarea>
+            </div>
+            <button type="submit">Wyślij Zamówienie</button>
+        </form>
+    </section>
 
     <script>
-        // Konfiguracja otwartej i wolnej od blokad bazy danych Hop Drive
-        const firebaseConfig = {
-            databaseURL: "https://firebasedatabase.app"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-
-        function switchPage(pageId) {
-            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
-            document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
-            document.getElementById('page-' + pageId).classList.add('active');
-            document.getElementById('btn-' + pageId).classList.add('active');
-        }
-
-        function sendOrder(event) {
-            event.preventDefault();
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = true;
-            submitBtn.innerText = 'Wysyłanie...';
-
-            const name = document.getElementById('name').value;
-            const phone = document.getElementById('phone').value;
-            const shop = document.getElementById('shop').value;
-            const products = document.getElementById('products').value;
-            const timeString = new Date().toLocaleTimeString();
-
-            // Zapisujemy jako obiekt z idealnie wydzielonymi polami do bazy danych online
-            database.ref('orders').push({
-                name: name,
-                phone: phone,
-                shop: shop,
-                products: products,
-                time: timeString
-            })
-            .then(() => {
-                alert('Dziękujemy! Zamówienie zostało pomyślnie wysłane.');
-                document.getElementById('orderForm').reset();
-            })
-            .catch((err) => {
-                console.error(err);
-                alert('Wystąpił problem z połączeniem. Spróbuj ponownie.');
-            })
-            .finally(() => {
-                submitBtn.disabled = false;
-                submitBtn.innerText = 'Złóż zamówienie';
+        // Funkcja do zarządzania widocznością sekcji (Nawigacja)
+        function showSection(sectionId) {
+            // Ukryj wszystkie sekcje
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.style.display = 'none';
             });
+
+            // Usuń klasę 'active' ze wszystkich przycisków
+            document.querySelectorAll('.nav-tabs button').forEach(button => {
+                button.classList.remove('active');
+            });
+
+            // Pokaż wybrany element
+            const activeSection = document.getElementById(sectionId + '-section');
+            if (activeSection) {
+                activeSection.style.display = 'block';
+            }
+
+            // Aktywuj odpowiedni przycisk
+            const activeButton = document.getElementById(`btn-${sectionId}`);
+            if (activeButton) {
+                activeButton.classList.add('active');
+            }
         }
+
+        // Dodajemy nowy kod do obsługi formularza
+        document.getElementById('orderForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const imie = document.getElementById('imie').value;
+            const nazwisko = document.getElementById('nazwisko').value;
+            const telefon = document.getElementById('telefon').value;
+            const sklep = document.getElementById('sklep').value;
+            const produkty = document.getElementById('produkty').value;
+            const email = 'mucha.adam14@gmail.com'; // Zmień ten adres na swój
+            const subject = 'Zamówienie z Hop Drive';
+            const body = `Imię: ${imie}\nNazwisko: ${nazwisko}\nNumer telefonu: ${telefon}\nSklep: ${sklep}\nProdukty: ${produkty}`;
+            const mailtoLink = `mailto:${email}?subject=${subject}&body=${body}`;
+            window.location.href = mailtoLink;
+        });
+
+        // Inicjalizacja: Upewnienie się, że przy starcie jest widoczna sekcja Home
+        document.addEventListener('DOMContentLoaded', () => {
+            showSection('home');
+        });
     </script>
 </body>
 </html>

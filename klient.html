@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hop Drive</title>
+    <!-- Oficjalne i bezpieczne skrypty bazy danych działające online -->
+    <script src="https://gstatic.com"></script>
+    <script src="https://gstatic.com"></script>
     <style>
         :root {
             --primary-gradient: linear-gradient(135deg, #fcd034, #872ba1);
@@ -153,7 +156,10 @@
             text-align: center;
         }
 
-        #hidden_iframe { display: none; }
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
 
         @media (max-width: 600px) {
             header { padding: 10px; }
@@ -186,21 +192,20 @@
 
         <div id="page-zamowienia" class="page">
             <h2>Formularz zamówienia</h2>
-            <!-- Użycie tradycyjnego mechanizmu przesyłania formularzy bez podatności na błędy skryptów JS -->
-            <form id="orderForm" action="https://formspree.io" method="POST" target="hidden_iframe" onsubmit="handleFormSubmit()">
+            <form id="orderForm" onsubmit="sendOrder(event)">
                 <div class="form-group">
                     <label for="name">Imię i nazwisko</label>
-                    <input type="text" name="Klient" id="name" required placeholder="Wpisz swoje imię i nazwisko">
+                    <input type="text" id="name" required placeholder="Wpisz swoje imię i nazwisko">
                 </div>
 
                 <div class="form-group">
                     <label for="phone">Numer telefonu</label>
-                    <input type="tel" name="Telefon" id="phone" required placeholder="Np. 123456789">
+                    <input type="tel" id="phone" required placeholder="Np. 123456789">
                 </div>
 
                 <div class="form-group">
                     <label for="shop">Wybierz sklep</label>
-                    <select name="Sklep" id="shop" required>
+                    <select id="shop" required>
                         <option value="" disabled selected>-- Wybierz sklep z listy --</option>
                         <option value="Żabka">Żabka</option>
                         <option value="Lidl">Lidl</option>
@@ -210,16 +215,22 @@
 
                 <div class="form-group">
                     <label for="products">Lista zakupów</label>
-                    <textarea name="Produkty" id="products" rows="5" required placeholder="Wpisz listę produktów do zakupienia..."></textarea>
+                    <textarea id="products" rows="5" required placeholder="Wpisz listę produktów do zakupienia..."></textarea>
                 </div>
 
                 <button type="submit" id="submitBtn" class="submit-btn">Złóż zamówienie</button>
             </form>
-            <iframe name="hidden_iframe" id="hidden_iframe"></iframe>
         </div>
     </main>
 
     <script>
+        // Konfiguracja otwartej i wolnej od blokad bazy danych Hop Drive
+        const firebaseConfig = {
+            databaseURL: "https://firebasedatabase.app"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
         function switchPage(pageId) {
             document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
             document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
@@ -227,17 +238,38 @@
             document.getElementById('btn-' + pageId).classList.add('active');
         }
 
-        function handleFormSubmit() {
+        function sendOrder(event) {
+            event.preventDefault();
             const submitBtn = document.getElementById('submitBtn');
             submitBtn.disabled = true;
             submitBtn.innerText = 'Wysyłanie...';
 
-            setTimeout(() => {
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const shop = document.getElementById('shop').value;
+            const products = document.getElementById('products').value;
+            const timeString = new Date().toLocaleTimeString();
+
+            // Zapisujemy jako obiekt z idealnie wydzielonymi polami do bazy danych online
+            database.ref('orders').push({
+                name: name,
+                phone: phone,
+                shop: shop,
+                products: products,
+                time: timeString
+            })
+            .then(() => {
                 alert('Dziękujemy! Zamówienie zostało pomyślnie wysłane.');
                 document.getElementById('orderForm').reset();
+            })
+            .catch((err) => {
+                console.error(err);
+                alert('Wystąpił problem z połączeniem. Spróbuj ponownie.');
+            })
+            .finally(() => {
                 submitBtn.disabled = false;
                 submitBtn.innerText = 'Złóż zamówienie';
-            }, 1000);
+            });
         }
     </script>
 </body>
